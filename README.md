@@ -2,6 +2,8 @@
 
 > A dual-distribution suite (Standalone Web App & Chrome Extension Manifest V3) designed to explore, calibrate, and implement the native **Web Speech API** with cross-browser consistency.
 
+🚀 **[Try the Live Web Studio Demo](https://QuentinMerle.github.io/web-speech-selector/web/)**
+
 ---
 
 ## 🌟 Overview & Philosophy
