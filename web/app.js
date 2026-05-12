@@ -214,7 +214,8 @@ class TTSStudio {
             utterance.voice = this.selectedVoice;
         }
         utterance.pitch = parseFloat(this.pitchSlider.value);
-        utterance.rate = parseFloat(this.rateSlider.value);
+        const baseRate = parseFloat(this.rateSlider.value);
+        utterance.rate = navigator.userAgent.includes("Firefox") ? baseRate * 0.85 : baseRate;
 
         utterance.onstart = () => {
             this.isSpeaking = true;

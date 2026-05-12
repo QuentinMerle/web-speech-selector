@@ -162,7 +162,12 @@
   
   <span class="text-slate-500">// Calibrated Settings</span>
   utterance.pitch = <span class="text-orange-400" id="snipPitch">1.0</span>;
-  utterance.rate = <span class="text-orange-400" id="snipRate">1.0</span>;
+  
+  <span class="text-slate-500">// Engine Calibration: Firefox default cadence is often faster</span>
+  <span class="text-pink-500">const</span> baseRate = <span class="text-orange-400" id="snipRate">1.0</span>;
+  utterance.rate = navigator.userAgent.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"Firefox"</span>) 
+    ? baseRate * <span class="text-orange-400">0.85</span> 
+    : baseRate;
   
   <span class="text-slate-500">// Robust voice matching</span>
   <span class="text-pink-500">const</span> voices = synth.<span class="text-yellow-400">getVoices</span>();
