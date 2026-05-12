@@ -4,6 +4,8 @@
 
 🚀 **[Try the Live Web Studio Demo](https://QuentinMerle.github.io/web-speech-selector/web/)**
 
+🤖 **For AI agents and LLMs**: See [`llms-full.txt`](llms-full.txt) for structured technical context.
+
 ---
 
 ## 🌟 Overview & Philosophy
