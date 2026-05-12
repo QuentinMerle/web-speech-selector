@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Speech Selector Popup</title>
+    <link rel="stylesheet" href="styles/output.css">
+    <script src="scripts/lucide.min.js"></script>
+</head>
+<body class="p-4 space-y-4 antialiased">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+            <div class="w-6 h-6 bg-blue-600 rounded flex items-center justify-center">
+                <i data-lucide="mic" class="w-4 h-4 text-white"></i>
+            </div>
+            <h1 class="text-sm font-bold">Speech Selector <span class="text-blue-500">Lite</span></h1>
+        </div>
+        <div id="statusBadge" class="text-[9px] font-bold text-slate-500 flex items-center gap-1.5 px-2 py-0.5 bg-slate-800 rounded-full">
+            <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div> IDLE
+        </div>
+    </div>
+
+    <!-- Voice Select -->
+    <div class="space-y-2">
+        <div class="relative">
+            <i data-lucide="search" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
+            <input type="text" id="voiceSearch" placeholder="Filter voices..." 
+                class="w-full bg-slate-800/50 border border-slate-700 rounded-lg py-1.5 pl-8 pr-3 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div id="voiceList" class="h-32 overflow-y-auto overflow-x-hidden custom-scrollbar space-y-1 bg-slate-950 rounded-lg p-1 border border-slate-800 box-border w-full">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+
+    <!-- Sliders -->
+    <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+            <div class="flex justify-between text-[10px]">
+                <label class="text-slate-400">Pitch</label>
+                <span id="pitchValue" class="text-blue-400 font-mono">1.0</span>
+            </div>
+            <input type="range" id="pitch" min="0.1" max="2.0" step="0.1" value="1.0">
+        </div>
+        <div class="space-y-1.5">
+            <div class="flex justify-between text-[10px]">
+                <label class="text-slate-400">Rate</label>
+                <span id="rateValue" class="text-blue-400 font-mono">1.0</span>
+            </div>
+            <input type="range" id="rate" min="0.1" max="2.0" step="0.1" value="1.0">
+        </div>
+    </div>
+
+    <!-- Playground -->
+    <div class="space-y-2">
+        <div class="relative">
+            <div id="textOverlay" class="absolute inset-0 p-3 pointer-events-none text-xs leading-relaxed text-transparent break-words whitespace-pre-wrap"></div>
+            <textarea id="playgroundInput" 
+                class="w-full h-20 bg-slate-900/40 border border-slate-700/50 rounded-lg p-3 text-xs leading-relaxed text-slate-200 focus:outline-none focus:border-blue-500/50 resize-none"
+                placeholder="Speech preview..."></textarea>
+        </div>
+        <div class="flex gap-2">
+            <button id="playBtn" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-lg py-2 text-xs font-black flex items-center justify-center gap-2 transition-all border-b-2 border-cyan-700 active:scale-95 focus:outline-none">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-slate-950"></i> Play
+            </button>
+            <button id="stopBtn" class="px-3 bg-rose-500 hover:bg-rose-400 text-slate-950 rounded-lg py-2 transition-all border-b-2 border-rose-700 active:scale-95 focus:outline-none flex items-center justify-center">
+                <i data-lucide="square" class="w-3.5 h-3.5 fill-slate-950"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+        <button id="copyPromptBtn" class="text-[10px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-all active:scale-95 focus:outline-none bg-slate-900/80 px-2 py-1 rounded border-b border-slate-950">
+            <i data-lucide="sparkles" class="w-3 h-3 text-yellow-400 fill-yellow-400"></i> Copy AI Prompt
+        </button>
+        <p class="text-[9px] text-slate-600">Vibrisse Studio Engine</p>
+    </div>
+
+    <script src="scripts/popup.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

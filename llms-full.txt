@@ -1,0 +1,41 @@
+# Web Speech Selector - Technical Manifest for AI Agents
+
+## Overview
+A "Studio" environment for Web Speech API (TTS) calibration. Designed to handle the fragmentation of `window.speechSynthesis` across browsers.
+
+## Core Logic Patterns
+1. **Async Voice Loading**: Chrome requires listening to `speechSynthesis.onvoiceschanged`.
+2. **Robust Selection**: Use `voices.find(v => v.name.includes(targetName))` rather than exact matches.
+3. **CSS Build**: Tailwind CSS is compiled from `src/input.css` into `web/output.css` and `extension/styles/output.css`. Use `npm run build` to compile or `npm run watch:web`/`npm run watch:ext` for development.
+4. **State Management**:
+   - `pitch`: 0.1 to 2.0 (Default 1.0)
+   - `rate`: 0.1 to 2.0 (Default 1.0)
+   - `voiceName`: String identifier.
+4. **Accessibility (A11y)**:
+   - Word highlighting via `utterance.onboundary` (event.name === 'word').
+   - Global hotkeys: Space (Play/Pause), Escape (Stop).
+   - ARIA-live for status updates.
+
+## File Structure
+- `/web/index.html`: Main UI with Tailwind CSS.
+- `/web/app.js`: Core TTS and UI logic.
+- `/extension/manifest.json`: V3 Extension config.
+- `/extension/scripts/popup.js`: Reuses logic from app.js with `chrome.storage.local`.
+
+## Implementation Snippet Pattern
+```javascript
+const speak = (text, config) => {
+  const synth = window.speechSynthesis;
+  const voices = synth.getVoices();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voices.find(v => v.name.includes(config.name)) || voices[0];
+  utterance.pitch = config.pitch;
+  utterance.rate = config.rate;
+  synth.speak(utterance);
+};
+```
+
+## UI Specs
+- Primary Color: Slate/Blue (Dark Theme).
+- Icons: Lucide.
+- Sliders: Custom styled range inputs.

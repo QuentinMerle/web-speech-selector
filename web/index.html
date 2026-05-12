@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Speech Selector | TTS Studio</title>
+    <meta name="description" content="Explore and calibrate the Web Speech API with real-time feedback and cross-browser snippet generation.">
+    <link rel="stylesheet" href="output.css">
+    <script src="lucide.min.js"></script>
+</head>
+<body class="min-h-screen flex flex-col antialiased relative overflow-x-hidden bg-[#0b0f19]">
+
+    <!-- Funky Ambient Background -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-blue-600/20 rounded-full mix-blend-screen filter blur-[120px] opacity-70 animate-blob"></div>
+        <div class="absolute top-10 -right-20 w-[500px] h-[500px] bg-purple-600/20 rounded-full mix-blend-screen filter blur-[120px] opacity-70 animate-blob animation-delay-2000"></div>
+        <div class="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-cyan-500/10 rounded-full mix-blend-screen filter blur-[140px] opacity-60 animate-blob animation-delay-4000"></div>
+        <div class="absolute -bottom-32 -right-20 w-[600px] h-[600px] bg-pink-600/10 rounded-full mix-blend-screen filter blur-[130px] opacity-50 animate-blob animation-delay-2000"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-container mx-auto px-6 h-16 flex items-center justify-between relative z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i data-lucide="mic" class="w-5 h-5 text-white"></i>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-200 to-slate-400">
+                    Web Speech <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-400">Selector</span>
+                </h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/quentin/web-speech-selector" target="_blank" class="text-slate-400 hover:text-white transition-colors" title="View source on GitHub">
+                    <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+        
+        <!-- Left Column: Controls -->
+        <div class="lg:col-span-4 space-y-6">
+            
+            <!-- Voice Selection -->
+            <section class="bg-[#0f172a] border-t-4 border-t-indigo-500 border-x border-b border-slate-800 rounded-2xl p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xs font-black uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Voice Configuration
+                    </h2>
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-500"></i>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Search -->
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="voiceSearch" placeholder="Filter voices..." 
+                            class="w-full bg-[#1e293b] border-2 border-slate-700/80 rounded-xl py-2 pl-10 pr-4 text-sm font-bold text-white placeholder-slate-400 focus:border-indigo-500 focus:outline-none transition-all box-border">
+                    </div>
+
+                    <!-- Voice List -->
+                    <div id="voiceList" class="h-[300px] overflow-y-auto overflow-x-hidden custom-scrollbar space-y-1 pr-1 w-full box-border">
+                        <!-- Voices populated by JS -->
+                        <div class="text-slate-400 font-bold text-xs italic animate-pulse p-4">Loading browser voices...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calibration -->
+            <section class="bg-[#0f172a] border-t-4 border-t-pink-500 border-x border-b border-slate-800 rounded-2xl p-6 shadow-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xs font-black uppercase tracking-wider text-pink-400 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-pink-500"></span> Calibration
+                    </h2>
+                    <i data-lucide="sliders" class="w-4 h-4 text-slate-500"></i>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Pitch -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-black text-slate-200 uppercase tracking-wide">Pitch</label>
+                            <span id="pitchValue" class="text-xs font-black font-mono bg-pink-950 px-2 py-0.5 rounded text-pink-300 border border-pink-800/50">1.0</span>
+                        </div>
+                        <input type="range" id="pitch" min="0.1" max="2.0" step="0.1" value="1.0">
+                    </div>
+
+                    <!-- Rate -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs font-black text-slate-200 uppercase tracking-wide">Rate</label>
+                            <span id="rateValue" class="text-xs font-black font-mono bg-pink-950 px-2 py-0.5 rounded text-pink-300 border border-pink-800/50">1.0</span>
+                        </div>
+                        <input type="range" id="rate" min="0.1" max="2.0" step="0.1" value="1.0">
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Prompt Connector -->
+            <button id="copyPromptBtn" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl py-4 flex items-center justify-center gap-3 font-black transition-all shadow-xl shadow-indigo-950/50 active:scale-95 focus:outline-none border-b-4 border-indigo-950">
+                <i data-lucide="sparkles" class="w-5 h-5 text-yellow-300 fill-yellow-300 animate-pulse"></i>
+                <span>Copy AI Voice Prompt</span>
+            </button>
+
+        </div>
+
+        <!-- Right Column: Playground & Snippets -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Live Playground -->
+            <section class="bg-gradient-to-br from-[#0f172a] via-[#121b2e] to-[#170f26] border-t-4 border-t-cyan-400 border-x border-b border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Studio Playground
+                    </h2>
+                    <div id="statusBadge" class="px-3 py-1 bg-slate-900 rounded-full text-[10px] font-black text-slate-400 flex items-center gap-2 border border-slate-800" aria-live="polite">
+                        <div class="w-2 h-2 rounded-full bg-slate-600"></div> IDLE
+                    </div>
+                </div>
+
+                <!-- Text Area with Highlighting Overlay -->
+                <div class="relative min-h-[200px] mb-6">
+                    <div id="textOverlay" class="absolute inset-0 p-4 pointer-events-none text-xl font-bold leading-relaxed text-transparent break-words whitespace-pre-wrap box-border"></div>
+                    <textarea id="playgroundInput" 
+                        class="w-full min-h-[200px] bg-[#090d16] border-2 border-slate-800 rounded-xl p-4 text-xl font-bold leading-relaxed text-white focus:outline-none focus:border-cyan-500 transition-all resize-none box-border shadow-inner"
+                        placeholder="Type something to hear it... (Space to play/pause, Esc to stop)">Welcome to the Web Speech Selector Studio. This tool helps you calibrate the native browser TTS for a consistent premium experience across all browsers.</textarea>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button id="playBtn" class="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl py-4 font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-cyan-950/40 active:scale-95 border-b-4 border-cyan-700 focus:outline-none">
+                        <i data-lucide="play" class="w-6 h-6 fill-slate-950"></i> Play
+                    </button>
+                    <button id="stopBtn" class="px-6 bg-rose-500 hover:bg-rose-400 text-slate-950 rounded-xl py-4 font-black transition-all border-b-4 border-rose-700 active:scale-95 focus:outline-none flex items-center justify-center shadow-xl shadow-rose-950/20">
+                        <i data-lucide="square" class="w-6 h-6 fill-slate-950"></i>
+                    </button>
+                </div>
+
+                <p class="mt-5 text-[10px] font-black text-slate-400 text-center uppercase tracking-[0.2em]">
+                    Press <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-cyan-400 mx-1">Space</span> to Play/Pause • <span class="bg-slate-900 border border-slate-800 px-2 py-1 rounded text-rose-400 mx-1">Esc</span> to Stop
+                </p>
+            </section>
+
+            <!-- Snippet Generator -->
+            <section class="bg-[#0f172a] border-t-4 border-t-amber-500 border-x border-b border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                <div class="bg-[#131c31] px-6 py-4 flex items-center justify-between border-b border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="code" class="w-5 h-5 text-amber-400"></i>
+                        <h2 class="text-xs font-black tracking-wider text-white uppercase">Robust Implementation Snippet</h2>
+                    </div>
+                    <button id="copySnippetBtn" class="text-xs bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-2 rounded-lg transition-all flex items-center gap-2 border-b-4 border-amber-700 active:scale-95 focus:outline-none shadow-md">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Code
+                    </button>
+                </div>
+                <div class="p-6 bg-[#060912] font-mono text-sm overflow-x-auto box-border">
+                    <pre id="codeSnippet" class="text-blue-300/90 leading-relaxed font-bold">
+<span class="text-pink-500">const</span> <span class="text-yellow-400">speak</span> = (text) => {
+  <span class="text-pink-500">const</span> synth = window.speechSynthesis;
+  <span class="text-pink-500">const</span> utterance = <span class="text-pink-500">new</span> <span class="text-yellow-400">SpeechSynthesisUtterance</span>(text);
+  
+  <span class="text-slate-500">// Calibrated Settings</span>
+  utterance.pitch = <span class="text-orange-400" id="snipPitch">1.0</span>;
+  utterance.rate = <span class="text-orange-400" id="snipRate">1.0</span>;
+  
+  <span class="text-slate-500">// Robust voice matching</span>
+  <span class="text-pink-500">const</span> voices = synth.<span class="text-yellow-400">getVoices</span>();
+  utterance.voice = voices.<span class="text-yellow-400">find</span>(v => 
+    v.name.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"<span id="snipVoiceName">Selected Voice</span>"</span>)
+  ) || voices[<span class="text-orange-400">0</span>];
+  
+  synth.<span class="text-yellow-400">speak</span>(utterance);
+};</pre>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="p-8 text-center text-slate-500 text-xs relative z-10">
+        <p>© 2026 Web Speech Selector • Open Source Studio Tool</p>
+    </footer>
+
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
