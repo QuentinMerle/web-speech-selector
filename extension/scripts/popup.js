@@ -40,10 +40,30 @@ class PopupStudio {
             this.rateSlider.value = saved.rate;
             this.rateValue.textContent = saved.rate;
         }
-        if (saved.text) {
-            this.playgroundInput.value = saved.text;
-            this.syncOverlay();
+
+        // Query active tab text selection
+        let activeSelection = "";
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (tab && tab.url && !tab.url.startsWith("chrome://") && !tab.url.startsWith("about:") && !tab.url.startsWith("edge://")) {
+                const results = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => window.getSelection().toString().trim()
+                });
+                if (results && results[0] && results[0].result) {
+                    activeSelection = results[0].result;
+                }
+            }
+        } catch (err) {
+            console.warn("Unable to fetch page selection:", err);
         }
+
+        if (activeSelection) {
+            this.playgroundInput.value = activeSelection;
+        } else if (saved.text) {
+            this.playgroundInput.value = saved.text;
+        }
+        this.syncOverlay();
 
         // Load voices
         this.loadVoices(saved.voiceName);

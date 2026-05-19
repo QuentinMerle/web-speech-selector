@@ -22,9 +22,9 @@ class TTSStudio {
         this.playBtn = document.getElementById('playBtn');
         this.stopBtn = document.getElementById('stopBtn');
         this.statusBadge = document.getElementById('statusBadge');
-        this.snipPitch = document.getElementById('snipPitch');
-        this.snipRate = document.getElementById('snipRate');
-        this.snipVoiceName = document.getElementById('snipVoiceName');
+        this.codeSnippet = document.getElementById('codeSnippet');
+        this.snippetTabs = document.getElementById('snippetTabs');
+        this.activeSnippetTab = 'vanilla';
         this.copyPromptBtn = document.getElementById('copyPromptBtn');
         this.copySnippetBtn = document.getElementById('copySnippetBtn');
 
@@ -46,6 +46,24 @@ class TTSStudio {
         this.stopBtn.addEventListener('click', () => this.stopSpeech());
         this.copyPromptBtn.addEventListener('click', () => this.copyAIPrompt());
         this.copySnippetBtn.addEventListener('click', () => this.copySnippet());
+        
+        // Tab Clicks for Snippets
+        if (this.snippetTabs) {
+            this.snippetTabs.addEventListener('click', (e) => {
+                const button = e.target.closest('[data-tab]');
+                if (!button) return;
+                
+                // Update active tab styling
+                const buttons = this.snippetTabs.querySelectorAll('[data-tab]');
+                buttons.forEach(btn => {
+                    btn.className = "text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-lg border-2 border-slate-700 hover:border-amber-500/50 text-slate-300 transition-all focus:outline-none whitespace-nowrap";
+                });
+                button.className = "text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-lg border-2 border-amber-500 bg-amber-500 text-slate-950 transition-all focus:outline-none whitespace-nowrap";
+                
+                this.activeSnippetTab = button.dataset.tab;
+                this.updateSnippet();
+            });
+        }
         
         // Sync overlay on input
         this.playgroundInput.addEventListener('input', () => this.syncOverlay());
@@ -72,8 +90,8 @@ class TTSStudio {
         // Select first English voice by default if none selected
         if (!this.selectedVoice && this.voices.length > 0) {
             this.selectedVoice = this.voices.find(v => v.lang.startsWith('en')) || this.voices[0];
-            this.updateSnippet();
         }
+        this.updateSnippet();
     }
 
     renderVoiceList() {
@@ -156,9 +174,163 @@ class TTSStudio {
     }
 
     updateSnippet() {
-        if (this.snipPitch) this.snipPitch.textContent = this.pitchSlider.value;
-        if (this.snipRate) this.snipRate.textContent = this.rateSlider.value;
-        if (this.snipVoiceName) this.snipVoiceName.textContent = this.selectedVoice?.name || "Selected Voice";
+        if (!this.codeSnippet) return;
+
+        const pitch = this.pitchSlider.value;
+        const rate = this.rateSlider.value;
+        const voiceName = this.selectedVoice?.name || "Selected Voice";
+
+        let snippetHTML = "";
+
+        if (this.activeSnippetTab === 'vanilla') {
+            snippetHTML = `<span class="text-pink-500">const</span> <span class="text-yellow-400">speak</span> = (text) => {
+  <span class="text-pink-500">const</span> synth = window.speechSynthesis;
+  <span class="text-pink-500">const</span> utterance = <span class="text-pink-500">new</span> <span class="text-yellow-400">SpeechSynthesisUtterance</span>(text);
+  
+  <span class="text-slate-500">// Calibrated Settings</span>
+  utterance.pitch = <span class="text-orange-400">${pitch}</span>;
+  
+  <span class="text-slate-500">// Engine Calibration: Firefox default cadence is often faster</span>
+  <span class="text-pink-500">const</span> baseRate = <span class="text-orange-400">${rate}</span>;
+  utterance.rate = navigator.userAgent.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"Firefox"</span>) 
+    ? baseRate * <span class="text-orange-400">0.85</span> 
+    : baseRate;
+  
+  <span class="text-slate-500">// Robust voice matching</span>
+  <span class="text-pink-500">const</span> voices = synth.<span class="text-yellow-400">getVoices</span>();
+  utterance.voice = voices.<span class="text-yellow-400">find</span>(v => 
+    v.name.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"${voiceName}"</span>)
+  ) || voices[<span class="text-orange-400">0</span>];
+  
+  synth.<span class="text-yellow-400">speak</span>(utterance);
+};`;
+        } else if (this.activeSnippetTab === 'react') {
+            snippetHTML = `<span class="text-pink-500">import</span> { useCallback, useEffect, useState } <span class="text-pink-500">from</span> <span class="text-green-400">'react'</span>;
+
+<span class="text-pink-500">export const</span> <span class="text-yellow-400">useSpeechSynthesis</span> = () => {
+  <span class="text-pink-500">const</span> [voices, setVoices] = <span class="text-yellow-400">useState</span>([]);
+
+  <span class="text-yellow-400">useEffect</span>(() => {
+    <span class="text-pink-500">const</span> <span class="text-yellow-400">updateVoices</span> = () => {
+      <span class="text-yellow-400">setVoices</span>(window.speechSynthesis.<span class="text-yellow-400">getVoices</span>());
+    };
+    <span class="text-yellow-400">updateVoices</span>();
+    window.speechSynthesis.onvoiceschanged = updateVoices;
+    <span class="text-pink-500">return</span> () => {
+      window.speechSynthesis.onvoiceschanged = <span class="text-pink-500">null</span>;
+    };
+  }, []);
+
+  <span class="text-pink-500">const</span> speak = <span class="text-yellow-400">useCallback</span>((text) => {
+    <span class="text-pink-500">const</span> synth = window.speechSynthesis;
+    synth.<span class="text-yellow-400">cancel</span>(); <span class="text-slate-500">// Stop active playback</span>
+
+    <span class="text-pink-500">const</span> utterance = <span class="text-pink-500">new</span> <span class="text-yellow-400">SpeechSynthesisUtterance</span>(text);
+    
+    <span class="text-slate-500">// Calibrated Settings</span>
+    utterance.pitch = <span class="text-orange-400">${pitch}</span>;
+
+    <span class="text-pink-500">const</span> baseRate = <span class="text-orange-400">${rate}</span>;
+    utterance.rate = navigator.userAgent.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"Firefox"</span>) 
+      ? baseRate * <span class="text-orange-400">0.85</span> 
+      : baseRate;
+
+    <span class="text-pink-500">const</span> selectedVoice = voices.<span class="text-yellow-400">find</span>(v => 
+      v.name.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"${voiceName}"</span>)
+    ) || voices[<span class="text-orange-400">0</span>];
+
+    <span class="text-pink-500">if</span> (selectedVoice) utterance.voice = selectedVoice;
+
+    synth.<span class="text-yellow-400">speak</span>(utterance);
+  }, [voices]);
+
+  <span class="text-pink-500">return</span> { speak, voices };
+};`;
+        } else if (this.activeSnippetTab === 'vue') {
+            snippetHTML = `<span class="text-pink-500">import</span> { ref, onMounted, onUnmounted } <span class="text-pink-500">from</span> <span class="text-green-400">'vue'</span>;
+
+<span class="text-pink-500">export function</span> <span class="text-yellow-400">useSpeech</span>() {
+  <span class="text-pink-500">const</span> voices = <span class="text-yellow-400">ref</span>([]);
+
+  <span class="text-pink-500">const</span> <span class="text-yellow-400">updateVoices</span> = () => {
+    voices.value = window.speechSynthesis.<span class="text-yellow-400">getVoices</span>();
+  };
+
+  <span class="text-yellow-400">onMounted</span>(() => {
+    <span class="text-yellow-400">updateVoices</span>();
+    <span class="text-pink-500">if</span> (window.speechSynthesis.onvoiceschanged !== <span class="text-pink-500">undefined</span>) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+  });
+
+  <span class="text-yellow-400">onUnmounted</span>(() => {
+    window.speechSynthesis.onvoiceschanged = <span class="text-pink-500">null</span>;
+  });
+
+  <span class="text-pink-500">const</span> <span class="text-yellow-400">speak</span> = (text) => {
+    <span class="text-pink-500">const</span> synth = window.speechSynthesis;
+    synth.<span class="text-yellow-400">cancel</span>();
+
+    <span class="text-pink-500">const</span> utterance = <span class="text-pink-500">new</span> <span class="text-yellow-400">SpeechSynthesisUtterance</span>(text);
+    
+    <span class="text-slate-500">// Calibrated Settings</span>
+    utterance.pitch = <span class="text-orange-400">${pitch}</span>;
+
+    <span class="text-pink-500">const</span> baseRate = <span class="text-orange-400">${rate}</span>;
+    utterance.rate = navigator.userAgent.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"Firefox"</span>)
+      ? baseRate * <span class="text-orange-400">0.85</span>
+      : baseRate;
+
+    <span class="text-pink-500">const</span> selectedVoice = voices.value.<span class="text-yellow-400">find</span>(v =>
+      v.name.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"${voiceName}"</span>)
+    ) || voices.value[<span class="text-orange-400">0</span>];
+
+    <span class="text-pink-500">if</span> (selectedVoice) utterance.voice = selectedVoice;
+
+    synth.<span class="text-yellow-400">speak</span>(utterance);
+  };
+
+  <span class="text-pink-500">return</span> { speak, voices };
+}`;
+        } else if (this.activeSnippetTab === 'svelte') {
+            snippetHTML = `<span class="text-pink-500">import</span> { writable } <span class="text-pink-500">from</span> <span class="text-green-400">'svelte/store'</span>;
+
+<span class="text-pink-500">export const</span> voices = <span class="text-yellow-400">writable</span>([]);
+
+<span class="text-pink-500">if</span> (<span class="text-pink-500">typeof</span> window !== <span class="text-green-400">'undefined'</span>) {
+  <span class="text-pink-500">const</span> <span class="text-yellow-400">updateVoices</span> = () => voices.<span class="text-yellow-400">set</span>(window.speechSynthesis.<span class="text-yellow-400">getVoices</span>());
+  <span class="text-yellow-400">updateVoices</span>();
+  window.speechSynthesis.onvoiceschanged = updateVoices;
+}
+
+<span class="text-pink-500">export function</span> <span class="text-yellow-400">speak</span>(text) {
+  <span class="text-pink-500">const</span> synth = window.speechSynthesis;
+  synth.<span class="text-yellow-400">cancel</span>();
+
+  <span class="text-pink-500">const</span> utterance = <span class="text-pink-500">new</span> <span class="text-yellow-400">SpeechSynthesisUtterance</span>(text);
+  
+  <span class="text-slate-500">// Calibrated Settings</span>
+  utterance.pitch = <span class="text-orange-400">${pitch}</span>;
+  
+  <span class="text-pink-500">const</span> baseRate = <span class="text-orange-400">${rate}</span>;
+  utterance.rate = navigator.userAgent.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"Firefox"</span>) 
+    ? baseRate * <span class="text-orange-400">0.85</span> 
+    : baseRate;
+
+  <span class="text-pink-500">let</span> allVoices = [];
+  voices.<span class="text-yellow-400">subscribe</span>(v => allVoices = v)();
+
+  <span class="text-pink-500">const</span> selectedVoice = allVoices.<span class="text-yellow-400">find</span>(v => 
+    v.name.<span class="text-yellow-400">includes</span>(<span class="text-green-400">"${voiceName}"</span>)
+  ) || allVoices[<span class="text-orange-400">0</span>];
+
+  <span class="text-pink-500">if</span> (selectedVoice) utterance.voice = selectedVoice;
+
+  synth.<span class="text-yellow-400">speak</span>(utterance);
+}`;
+        }
+
+        this.codeSnippet.innerHTML = snippetHTML;
     }
 
     syncOverlay() {
@@ -278,17 +450,50 @@ class TTSStudio {
     }
 
     copyAIPrompt() {
-        const prompt = `Act as a Web Speech API Orchestrator. The following voice has been calibrated in the "Vibrisse Studio":
-- Voice Name: "${this.selectedVoice?.name}"
-- Language: ${this.selectedVoice?.lang}
+        const personaElement = document.getElementById('promptPersona');
+        const phoneticElement = document.getElementById('promptPhonetic');
+        const breathsElement = document.getElementById('promptBreaths');
+
+        const persona = personaElement ? personaElement.value : 'assistant';
+        const usePhonetic = phoneticElement ? phoneticElement.checked : true;
+        const useBreaths = breathsElement ? breathsElement.checked : true;
+
+        let personaInstructions = "";
+        if (persona === 'assistant') {
+            personaInstructions = "Adopt a clear, polite, and direct voice assistant tone. Prioritize short and well-structured sentences.";
+        } else if (persona === 'narrator') {
+            personaInstructions = "Adopt the tone of an audiobook narrator. Pacing should be narrative-driven, expressive, and marked with natural breath pauses.";
+        } else if (persona === 'educator') {
+            personaInstructions = "Adopt the tone of a technical instructor or educator. Be highly didactic, speak calmly, and articulate precisely.";
+        } else if (persona === 'game') {
+            personaInstructions = "Adopt the theatrical and immersive tone of an RPG game character. Be dramatic and highly expressive.";
+        }
+
+        let rules = [];
+        if (usePhonetic) {
+            rules.push("- Spell out complex technical terms or acronyms phonetically to aid speech synthesis (e.g., write 'ay-pee-eye' for 'API', 'jay-son' for 'JSON', 'you-eye' for 'UI', 'el-el-em' for 'LLM').");
+        }
+        if (useBreaths) {
+            rules.push("- Use punctuation marks to pace the natural cadence of the voice. Insert commas (,) for brief pauses and ellipsis (...) for longer transitions or breath breaks.");
+        }
+        rules.push("- Avoid overly long parenthesis or unusual punctuation marks that might disrupt the engine's pronunciation.");
+
+        const prompt = `Act as an Acoustic Prompt Engineer. The following native Web Speech API voice profile has been calibrated:
+- Voice Name: "${this.selectedVoice?.name || 'Default'}"
+- Language Code: ${this.selectedVoice?.lang || 'en'}
 - Calibrated Pitch: ${this.pitchSlider.value}
 - Calibrated Rate: ${this.rateSlider.value}
 
-Your task is to generate natural-sounding text optimized for this specific voice profile. Avoid complex abbreviations that this engine might mispronounce. Provide the output in a JSON format compatible with a custom utterance handler.`;
-        
+Text Generation Directives:
+1. TONALITY: ${personaInstructions}
+2. DICTION DIRECTIVES:
+${rules.join('\n')}
+
+Generate an optimized response in a JSON object format containing the keys 'text' (the optimized speech text tailored to the rules above) and 'visualText' (the clean, correctly spelled text suitable for screen display).`;
+
         navigator.clipboard.writeText(prompt).then(() => {
             const originalText = this.copyPromptBtn.innerHTML;
-            this.copyPromptBtn.innerHTML = '<i data-lucide="check" class="w-5 h-5 text-green-400"></i> <span class="font-medium text-green-400">Prompt Copied!</span>';
+            this.copyPromptBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-green-400"></i> <span class="font-medium text-green-400">Prompt Copied!</span>';
             lucide.createIcons();
             setTimeout(() => {
                 this.copyPromptBtn.innerHTML = originalText;

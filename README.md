@@ -1,6 +1,6 @@
 # 🎙️ Web Speech Selector
 
-> A dual-distribution suite (Standalone Web App & Chrome Extension Manifest V3) designed to explore, calibrate, and implement the native **Web Speech API** with cross-browser consistency.
+> A dual-distribution suite (Standalone Web App & Chrome Extension Manifest V3) designed to explore, calibrate, and implement the native **Web Speech API** with cross-browser consistency and dynamic AI/framework integration.
 
 🚀 **[Try the Live Web Studio Demo](https://QuentinMerle.github.io/web-speech-selector/web/)**
 
@@ -23,15 +23,26 @@ The native Text-to-Speech (TTS) functionality built into web browsers can be hig
 * **Live Interruption Feedback**: Adjusting any slider while audio is playing instantly pauses the current speech and restarts it with the updated parameters, giving you immediate auditory feedback without manual toggling.
 * **Instant Filtering**: Search through available browser voices by name or region tags (`en-US`, `fr-FR`, `ja-JP`, etc.) instantly.
 
-### ⭐ 2. Favorites & Persistence
-* **Starred Voices**: Click the star icon next to your favorite voices to automatically pin them to the top of the selection list for quick testing.
-* **Seamless Storage**: Fully persistent profiles saved via `localStorage` on the web app and `chrome.storage.local` inside the browser extension popup.
+### 🔌 2. Dynamic AI Voice Configurator
+* **Acoustic Prompt Engineer**: Generates a pre-formatted, robust system instruction prompt in English to calibrate **LLMs** (ChatGPT, Claude, Gemini, etc.) so they structure written outputs to sound highly natural when read by browser speech synthesis engines.
+* **Custom Personas**: Select the ideal acoustic character—*Voice Assistant* (clear & direct), *Audiobook Narrator* (expressive, rhythmic), *Technical Educator* (slow, precise), or *Retro RPG NPC* (theatrical, dramatic).
+* **Phonetic Spelling Guides**: Automatically instructs the LLM to write complex terms phonetically (e.g. spelling out `API` as `"ay-pee-eye"`, `JSON` as `"jay-son"`, `UI` as `"you-eye"`) so the native browser voice doesn't spell them out awkwardly.
+* **Punctuation-based Breath Pauses**: Instructs the AI to pace written phrases using commas and ellipsis for natural breaks, simulating realistic human breaths without requiring complex SSML markup.
 
-### 🔌 3. Export & Resilient Code Generation
-* **Universal JS Snippet**: Generates robust, copy-paste implementation code using `.includes()` substring matching. This logic protects your voice selection workflows from failing when operating system updates slightly alter native voice names.
-* **AI Prompt Connector**: Generates a pre-formatted metadata block detailing your specific voice calibration state. This makes it effortless to pass voice profile instructions into **LLMs** (ChatGPT, Claude, Gemini) when configuring speech-enabled agents.
+### 🛠️ 3. Robust Multi-Framework Snippet Generator
+* **Tabbed Developer Dashboard**: Instantly inspect and copy perfectly calibrated, production-grade text-to-speech implementation templates tailored directly to your framework of choice:
+  * **Vanilla JS**: Standard pure async function wrapper with smart Firefox speed compensation.
+  * **React Hook**: Custom `useSpeechSynthesis` hook managing state, asynchronous voice list updates, and proper cleanup side-effects to prevent memory leaks.
+  * **Vue 3**: Reactive Composition API `useSpeech()` composable with built-in `onMounted` and `onUnmounted` handlers.
+  * **Svelte**: Fully reactive store-based store sub-bar.
 
-### 🛡️ 4. Local Execution & Privacy (Zero-CDN)
+### 🧩 4. Chrome Extension: "The Active Web Reader"
+* **Highlight Detection**: Leveraging Manifest V3 `activeTab` and `scripting` permissions, the extension popup **automatically detects highlighted text** on your active browser tab and pre-fills the reader on launch.
+* **Instant TTS Utility**: Turn the extension into a powerful accessibility reader that articulates complex documentation or articles using your exact favorite calibrated voice profile in one click.
+* **Starred Voices**: Click the star icon next to your favorite voices to automatically pin them to the top of the selection list.
+* **Seamless Local Storage**: fully persistent settings via `localStorage` on the web app and `chrome.storage.local` inside the browser extension.
+
+### 🛡️ 5. Local Execution & Privacy (Zero-CDN)
 * **Manifest V3 Compliant**: All script dependencies, utility styles, and standalone icon distributions (**Lucide UMD Standalone**) are bundled locally.
 * **Offline Ready**: Operates completely offline with zero external web requests, ensuring perfect privacy for your text inputs and solid reliability.
 

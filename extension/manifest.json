@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Native Browser TTS Explorer and Calibrator",
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab",
+    "scripting"
   ],
   "action": {
     "default_popup": "popup.html",
